@@ -1,0 +1,8 @@
+/* Around Line 4 - add the following line */
+
+include_once(SIMPLE_WP_MEMBERSHIP_PATH . 'views/payments/payment-gateway/admin_nochex_buy_now_button.php');
+
+
+/* Around line 27 - add the following line */
+
+<input type="radio" name="button_type" value="nochex_buy_now"><?php SwpmUtils::e('Nochex Buy Now'); ?> <br/>
