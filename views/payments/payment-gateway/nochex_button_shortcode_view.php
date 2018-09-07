@@ -111,16 +111,30 @@ $start_date = date("Y-m-d");
 $end_date = $all_level_ids->subscription_period;
 
 $subscriptionPeriod = Get_Date_Difference($start_date, $end_date);
-$subscriptionExpiryDate = $all_level_ids->subscription_period;
+/*$subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);*/
 
 }else{
 
 $subscriptionPeriod = SwpmUtils::calculate_subscription_period_days($all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
-$subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
 
 }
 
-$xmlCollection = "<items><item><id></id><name>".$all_level_ids->alias."</name><description>Membership Duration: ".$subscriptionPeriod." Days, Membership Expiration (if bought today): ".$subscriptionExpiryDate."</description><quantity>1</quantity><price>".$payment_amount."</price></item></items>";
+$subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
+
+if($all_level_ids->subscription_duration_type == 1){
+	$subsPeriod = "Days";
+}else if($all_level_ids->subscription_duration_type == 2){
+	$subsPeriod = "Weeks";
+}else if($all_level_ids->subscription_duration_type == 3){
+	$subsPeriod = "Months";
+}else if($all_level_ids->subscription_duration_type == 4){
+	$subsPeriod = "Years";
+}else if($all_level_ids->subscription_duration_type == 5){
+	$subsPeriod = "";
+}
+
+$xmlCollection = "<items><item><id></id><name>".$all_level_ids->alias."</name><description>Membership Duration: ".$all_level_ids->subscription_period." ".$subsPeriod.", Membership Expiration (if bought today): ".$subscriptionExpiryDate."</description><quantity>1</quantity><price>".$payment_amount."</price></item></items>";
+
 
 $member = SwpmMemberUtils::get_user_by_id($member_id);
 
@@ -158,22 +172,22 @@ if($member->account_state == "active"){
 
     /*$custom_field_value = apply_filters('swpm_custom_field_value_filter', $custom_field_value);*/
 	
-    $output = '';
+    $output = '<style>input + button, input + input[type="button"], input + input[type="submit"] { padding: 0px;background-color: #fff;}</style>';
     $output .= '<div class="swpm-button-wrapper swpm-pp-buy-now-wrapper" style="max-width:445px;">';	
     $output .= '<h3 style="color:#08c;"><b>'.$Title.'</b></h3>';	
-    $output .= '<ul>
+    $output .= '<ul style="list-style:none">
 				<li><b>Amount</b>: &#163;'.$payment_amount.'</li>
 				<li><b>Membership</b>: '.$all_level_ids->alias.' </li> 
 				<li><b>Membership Expiration</b>: '.$subscriptionExpiryDate.'</li>
 				</ul>';	
-	$output .= "<div style='padding:10px; background:#fafafa;border:1px solid #eee;display:".$showInfo."'>
-					<h3 style='color:#08c;'><b>".$dispMsg."</b>".$renewMsg."</h3>
-				<ul>
-				<li>Membership Duration: ".$subDay." Days</li>
-				<li>Your Membership started: ".$member->subscription_starts."</li>
-				<li>Your Membership expires: ".$permLevel."</li>
+	$output .= '<div style="padding:10px; background:#fafafa;border:1px solid #eee;display:'.$showInfo.'">
+				<h3 style="color:#08c;"><b>'.$dispMsg.'</b>'.$renewMsg.'</h3>
+				<ul style="list-style:none">
+				<li>Membership Duration: '.$subDay.' Days</li>
+				<li>Your Membership started: '.$member->subscription_starts.'</li>
+				<li>Your Membership expires: '.$permLevel.'</li>
 				</ul>
-				</div>";
+				</div>';
     $output .= '<script>
 				function checkValue(inPut){				
 				if(inPut.value == ""){
@@ -188,34 +202,22 @@ if($member->account_state == "active"){
 				if (document.getElementById("billing_fullname"+idLevel).value == ""){	
 								element = document.getElementById("billing_fullname"+idLevel);
 								element.style.border = "red 0.5px solid";
-								dontPost = false;
+								return false;
 				}else{
 								element = document.getElementById("billing_fullname"+idLevel);
 								element.style.border = "green 0.5px solid";
 				}
-				if (document.getElementById("description"+idLevel).value == ""){	
-								element = document.getElementById("description"+idLevel);
-								element.style.border = "red 0.5px solid";
-								dontPost = false;
-				}else{
-								element = document.getElementById("description"+idLevel);
-								element.style.border = "green 0.5px solid";
-								element.value = "Membership for: " + element.value;
-				}
+				
 				if(document.getElementById("email_address"+idLevel).value == ""){
 								element = document.getElementById("email_address"+idLevel);
 								element.style.border = "red 0.5px solid";
-								dontPost = false;
+								return false;
 				}else{
 								element = document.getElementById("email_address"+idLevel);
 								element.style.border = "green 0.5px solid";
 				}
 				
-				if(dontPost == false){
-					return false;
-				}else{
-					return true;
-				}
+				return true; 
 				
 				}
 				</script>
@@ -227,14 +229,16 @@ if($member->account_state == "active"){
 	
 	if (SwpmMemberUtils::is_member_logged_in()) {	 
 			$output .= '<script>document.getElementById("nonMember").style.display = "none";</script>';
-		 if($membership_type == 1){
+		if($membership_type == 1){
 			$output .= '<input type="hidden" name="optional_3" value="Renewal" /><br/>';
-		}		
+		}else{
+			$output .= '<input type="hidden" name="optional_3" value="New" /><br/>';
+		}
 	}
 	    
 	if($member_full_name == "" or $member_email == ""){
-		$output .= '<div><span style="width: 15%;    text-align: right;    min-width: 200px;    float: left; margin-right:10px;">Full Name</span><input id="billing_fullname'.$membership_level_id.'" type="text" name="billing_fullname" value="" onchange="checkValue(this);" placeholder="e.g. John Smith" /></div><br/>';
-		$output .= '<div><span style="width: 15%;    text-align: right;    min-width: 200px;    float: left; margin-right:10px;">Email Address</span><input id="email_address'.$membership_level_id.'" type="text" name="email_address" value="" onchange="checkValue(this);" placeholder="e.g. JaneDoe@hotmail.co.uk" /></div><br/>';
+		$output .= '<div><span style="width: 15%;text-align: left;min-width: 200px;float: left;margin-right:10px;">Full Name</span><input id="billing_fullname'.$membership_level_id.'" type="text" name="billing_fullname" value="" onchange="checkValue(this);" placeholder="e.g. John Smith" /></div><br/>';
+		$output .= '<div><span style="width: 15%;text-align: left;min-width: 200px;float: left;margin-right:10px;">Email Address</span><input id="email_address'.$membership_level_id.'" type="text" name="email_address" value="" onchange="checkValue(this);" placeholder="e.g. JaneDoe@hotmail.co.uk" /></div><br/>';
 	}else{
 		$output .= '<input type="hidden" id="billing_fullname" name="billing_fullname" value="'.$member_full_name.'" />';
 		$output .= '<input type="hidden" id="email_address" name="email_address" value="'.$member_email.'"  />';
@@ -254,9 +258,17 @@ if($member->account_state == "active"){
 
     $output .= apply_filters('swpm_nochex_payment_form_additional_fields', '');  
     $button_image_url = get_post_meta($button_id, 'button_image_url', true);
-
-        $button_text = (isset($args['button_text'])) ? $args['button_text'] : SwpmUtils::_('Buy Now');
-        $output .= '<input type="submit" class="fusion-button button-flat button-round button-medium button-blue button-8 btn btn-lg btn-primary pull-right" value="' . $button_text . '" />';
+    $button_custom_url = get_post_meta($button_id, 'customBtn', true);
+	
+	if($button_image_url == "custom"){
+		if($button_custom_url == ""){
+		$output .= '<input type="submit" class="fusion-button button-flat button-round button-medium button-blue button-8 btn btn-lg btn-primary pull-right" value="' . $button_text . '" />';
+		}else{
+		$output .= '<button type="submit"><img src="'.$button_custom_url.'" /></button>';
+		}
+	}else{
+		$output .= '<button type="submit"><img src="'.$button_image_url.'" /></button>';
+	}
 
     $output .= '</form>'; //End .form
     $output .= '</div><br style="clear:both;" />'; //End .swpm_button_wrapper

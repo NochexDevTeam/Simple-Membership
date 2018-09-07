@@ -76,9 +76,9 @@ function swpm_create_new_nochex_buy_now_button() {
 
                             <select id="membership_type" name="membership_type">
 
-                                <option selected="selected" value="0">New</option>
+                                <option value="0">New</option>
 								
-								<option selected="selected" value="1">Renewal</option>
+								<option value="1">Renewal</option>
 
                             </select>
 
@@ -97,7 +97,7 @@ function swpm_create_new_nochex_buy_now_button() {
 
                             <input type="text" size="6" name="payment_amount" value="" required />
 
-                            <p class="description">Enter payment amount. Example values: 10.00 or 19.50 or 299.95 etc (do not put currency symbol).</p>
+                            <p class="description">Enter payment amount. Example values: 10.00 or 19.50 or 299.95 etc <b>(do not put currency symbol)</b>.</p>
 
                         </td>
 
@@ -112,7 +112,7 @@ function swpm_create_new_nochex_buy_now_button() {
                         <td>
 
                             <select id="payment_currency" name="payment_currency">                               
-                                <option selected="selected" value="GBP">Pounds Sterling (£)</option>
+                                <option selected="selected" value="GBP">Pounds Sterling (GBP)</option>
                             </select>
 
                         </td>
@@ -139,7 +139,7 @@ function swpm_create_new_nochex_buy_now_button() {
 
                     <tr valign="top">
 
-                        <th scope="row"><?php echo SwpmUtils::_('Nochex Email Address or Merchant ID'); ?></th>
+                        <th scope="row"><?php echo SwpmUtils::_('Nochex Email Address'); ?></th>
 
                         <td>
 
@@ -158,9 +158,28 @@ function swpm_create_new_nochex_buy_now_button() {
                         <th scope="row"><?php echo SwpmUtils::_('Button Image URL'); ?></th>
 
                         <td>
-
-                            <input type="text" size="100" name="button_image_url" value="" />
-
+							<select name="button_image_url" onchange="showNcxButton(this)">							
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_pay.png"><h6>Option 1</h6></option>									
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_checkout.png"><h6>Option 2</h6></option>	
+								<option value="custom"><h6>Custom Option</h6></option>	
+							</select><br/><br/>
+                            <!---->
+							<script>
+								function showNcxButton(val){	
+									if(val.value == "custom"){
+										document.getElementById("preNcxBtn").style = "display:none";
+										document.getElementById("customBtn").style = "display:block";
+									}else{
+										document.getElementById("preNcxBtn").style = "display:block";
+										document.getElementById("customBtn").style = "display:none";
+										document.getElementById("preNcxBtn").src = val.value;
+									}
+								}
+							</script>
+							<img src="https://ssl.nochex.com/Downloads/Nochex Payment Button/payme4.gif" alt="" id="preNcxBtn" />
+							
+							<input type="text" size="100" name="customBtn" id="customBtn" style="display:none;" />
+							
                             <p class="description">If you want to customize the look of the button using an image then enter the URL of the image.</p>
 							
                         </td>
@@ -252,12 +271,8 @@ function swpm_save_new_nochex_buy_now_button_data() {
         add_post_meta($button_id, 'nochex_email', sanitize_text_field($_REQUEST['nochex_email']));
 
         add_post_meta($button_id, 'button_image_url', trim(sanitize_text_field($_REQUEST['button_image_url'])));
-
-
-
-        //Redirect to the edit interface of this button with $button_id        
-
-        //$url = admin_url() . 'admin.php?page=simple_wp_membership_payments&tab=edit_button&button_id=' . $button_id . '&button_type=' . $button_type;
+		
+        add_post_meta($button_id, 'customBtn', trim(sanitize_text_field($_REQUEST['customBtn'])));
 
         //Redirect to the manage payment buttons interface
 
@@ -322,7 +337,9 @@ function swpm_edit_nochex_buy_now_button() {
     $nochex_email = get_post_meta($button_id, 'nochex_email', true);
 
     $button_image_url = get_post_meta($button_id, 'button_image_url', true);
-
+	
+    $customBtn = get_post_meta($button_id, 'customBtn', true);
+		
     ?>
 
     <div class="postbox">
@@ -401,30 +418,26 @@ function swpm_edit_nochex_buy_now_button() {
 
                             <select id="membership_type" name="membership_type">
 								
-							<?php 
-
-								 if($membership_type == 1){
-								 
+							<?php  
+								if($membership_type == 0){  
 							 ?>
+
                                 <option selected="selected" value="0">New</option>
 								
-								<option selected="selected" value="1" selected="selected">Renewal</option>
+								<option value="1">Renewal</option>
 
 							<?php
 							
 								}else{
 								
 							?>
-                                <option selected="selected" value="0" selected="selected">New</option>
+                                <option value="0">New</option>
 								
 								<option selected="selected" value="1">Renewal</option>
 
 							 <?php								 
 								 }								 
-							 ?>
-								
-								
-                                <!--?php echo SwpmUtils::membership_level_dropdown($membership_level_id); ?-->
+							 ?> 
 								
                             </select>
 
@@ -442,7 +455,7 @@ function swpm_edit_nochex_buy_now_button() {
 
                             <input type="text" size="6" name="payment_amount" value="<?php echo $payment_amount; ?>" required />
 
-                            <p class="description">Enter payment amount. Example values: 10.00 or 19.50 or 299.95 etc (do not put currency symbol).</p>
+                            <p class="description">Enter payment amount. Example values: 10.00 or 19.50 or 299.95 etc <B>(do not put currency symbol)</B>.</p>
 
                         </td>
 
@@ -458,65 +471,7 @@ function swpm_edit_nochex_buy_now_button() {
 
                             <select id="payment_currency" name="payment_currency">
 
-                                <option value="USD" <?php echo ($payment_currency == 'USD') ? 'selected="selected"' : ''; ?>>US Dollars ($)</option>
-
-                                <option value="EUR" <?php echo ($payment_currency == 'EUR') ? 'selected="selected"' : ''; ?>>Euros (€)</option>
-
-                                <option value="GBP" <?php echo ($payment_currency == 'GBP') ? 'selected="selected"' : ''; ?>>Pounds Sterling (£)</option>
-
-                                <option value="AUD" <?php echo ($payment_currency == 'AUD') ? 'selected="selected"' : ''; ?>>Australian Dollars ($)</option>
-
-                                <option value="BRL" <?php echo ($payment_currency == 'BRL') ? 'selected="selected"' : ''; ?>>Brazilian Real (R$)</option>
-
-                                <option value="CAD" <?php echo ($payment_currency == 'CAD') ? 'selected="selected"' : ''; ?>>Canadian Dollars ($)</option>
-
-                                <option value="CNY" <?php echo ($payment_currency == 'CNY') ? 'selected="selected"' : ''; ?>>Chinese Yuan</option>
-
-                                <option value="CZK" <?php echo ($payment_currency == 'CZK') ? 'selected="selected"' : ''; ?>>Czech Koruna</option>
-
-                                <option value="DKK" <?php echo ($payment_currency == 'DKK') ? 'selected="selected"' : ''; ?>>Danish Krone</option>
-
-                                <option value="HKD" <?php echo ($payment_currency == 'HKD') ? 'selected="selected"' : ''; ?>>Hong Kong Dollar ($)</option>
-
-                                <option value="HUF" <?php echo ($payment_currency == 'HUF') ? 'selected="selected"' : ''; ?>>Hungarian Forint</option>
-
-                                <option value="INR" <?php echo ($payment_currency == 'INR') ? 'selected="selected"' : ''; ?>>Indian Rupee</option>
-
-                                <option value="IDR" <?php echo ($payment_currency == 'IDR') ? 'selected="selected"' : ''; ?>>Indonesia Rupiah</option>
-
-                                <option value="ILS" <?php echo ($payment_currency == 'ILS') ? 'selected="selected"' : ''; ?>>Israeli Shekel</option>
-
-                                <option value="JPY" <?php echo ($payment_currency == 'JPY') ? 'selected="selected"' : ''; ?>>Japanese Yen (¥)</option>
-
-                                <option value="MYR" <?php echo ($payment_currency == 'MYR') ? 'selected="selected"' : ''; ?>>Malaysian Ringgits</option>
-
-                                <option value="MXN" <?php echo ($payment_currency == 'MXN') ? 'selected="selected"' : ''; ?>>Mexican Peso ($)</option>
-
-                                <option value="NZD" <?php echo ($payment_currency == 'NZD') ? 'selected="selected"' : ''; ?>>New Zealand Dollar ($)</option>
-
-                                <option value="NOK" <?php echo ($payment_currency == 'NOK') ? 'selected="selected"' : ''; ?>>Norwegian Krone</option>
-
-                                <option value="PHP" <?php echo ($payment_currency == 'PHP') ? 'selected="selected"' : ''; ?>>Philippine Pesos</option>
-
-                                <option value="PLN" <?php echo ($payment_currency == 'PLN') ? 'selected="selected"' : ''; ?>>Polish Zloty</option>
-
-                                <option value="SGD" <?php echo ($payment_currency == 'SGD') ? 'selected="selected"' : ''; ?>>Singapore Dollar ($)</option>
-
-                                <option value="ZAR" <?php echo ($payment_currency == 'ZAR') ? 'selected="selected"' : ''; ?>>South African Rand (R)</option>
-
-                                <option value="KRW" <?php echo ($payment_currency == 'KRW') ? 'selected="selected"' : ''; ?>>South Korean Won</option>
-
-                                <option value="SEK" <?php echo ($payment_currency == 'SEK') ? 'selected="selected"' : ''; ?>>Swedish Krona</option>
-
-                                <option value="CHF" <?php echo ($payment_currency == 'CHF') ? 'selected="selected"' : ''; ?>>Swiss Franc</option>
-
-                                <option value="TWD" <?php echo ($payment_currency == 'TWD') ? 'selected="selected"' : ''; ?>>Taiwan New Dollars</option>
-
-                                <option value="THB" <?php echo ($payment_currency == 'THB') ? 'selected="selected"' : ''; ?>>Thai Baht</option>
-
-                                <option value="TRY" <?php echo ($payment_currency == 'TRY') ? 'selected="selected"' : ''; ?>>Turkish Lira</option>
-
-                                <option value="VND" <?php echo ($payment_currency == 'VND') ? 'selected="selected"' : ''; ?>>Vietnamese Dong</option>
+                                <option value="GBP" <?php echo ($payment_currency == 'GBP') ? 'selected="selected"' : ''; ?>>Pounds Sterling (GBP)</option>
 
                             </select>
 
@@ -525,8 +480,7 @@ function swpm_edit_nochex_buy_now_button() {
                         </td>
 
                     </tr>
-
-
+ 
 
                     <tr valign="top">
 
@@ -541,35 +495,100 @@ function swpm_edit_nochex_buy_now_button() {
                         </td>
 
                     </tr>
-
-
-
+ 
                     <tr valign="top">
 
-                        <th scope="row"><?php echo SwpmUtils::_('nochex Email'); ?></th>
+                        <th scope="row"><?php echo SwpmUtils::_('Nochex Email Address'); ?></th>
 
                         <td>
 
                             <input type="text" size="50" name="nochex_email" value="<?php echo $nochex_email; ?>" required />
 
-                            <p class="description">Enter your nochex email address. The payment will go to this nochex account.</p>
+                            <p class="description">Enter your nochex email address or merchant id.</p>
 
                         </td>
 
                     </tr>                    
-
-
-
+ 
                     <tr valign="top">
 
                         <th scope="row"><?php echo SwpmUtils::_('Button Image URL'); ?></th>
 
                         <td>
+							<select name="button_image_url" onchange="showNcxButton(this)">		
 
-                            <input type="text" size="100" name="button_image_url" value="<?php echo $button_image_url; ?>" />
+								<?php 
 
+								if($button_image_url == "https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_pay.png"){
+								
+								?>
+								
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_pay.png" selected="selected"><h6>Option 1</h6></option>									
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_checkout.png"><h6>Option 2</h6></option>	
+								<option value="custom"><h6>Custom Option</h6></option>	
+								
+								<?php 
+								
+								}else if($button_image_url == "https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_checkout.png"){
+								
+								?>
+								
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_pay.png"><h6>Option 1</h6></option>									
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_checkout.png" selected="selected"><h6>Option 2</h6></option>	
+								<option value="custom"><h6>Custom Option</h6></option>	
+								
+								<?php 
+								
+								}else{
+								
+								?>
+								
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_pay.png"><h6>Option 1</h6></option>									
+								<option value="https://ssl.nochex.com/Downloads/Nochex Payment Button/nochex_checkout.png"><h6>Option 2</h6></option>	
+								<option value="custom" selected="selected"><h6>Custom Option</h6></option>	
+								
+								<?php 
+								}
+								 
+								?>
+							
+
+							</select><br/><br/>
+                            <!---->
+							<script>
+								window.onload = function(){								
+									showNcxButtonCurr(<?php echo '"' . $button_image_url . '","' . $customBtn . '"'; ?>);
+								};
+								
+								function showNcxButtonCurr(val, cust){	
+									if(val == "custom"){
+										document.getElementById("preNcxBtn").style = "display:none";
+										document.getElementById("customBtn").style = "display:block";
+										document.getElementById("customBtn").value = cust;
+									}else{
+										document.getElementById("preNcxBtn").style = "display:block";
+										document.getElementById("customBtn").style = "display:none";
+										document.getElementById("preNcxBtn").src = val;
+									}
+								}
+							
+								function showNcxButton(val){	
+									if(val.value == "custom"){
+										document.getElementById("preNcxBtn").style = "display:none";
+										document.getElementById("customBtn").style = "display:block";
+									}else{
+										document.getElementById("preNcxBtn").style = "display:block";
+										document.getElementById("customBtn").style = "display:none";
+										document.getElementById("preNcxBtn").src = val.value;
+									}
+								}
+							</script>
+							<img src="https://ssl.nochex.com/Downloads/Nochex Payment Button/payme4.gif" alt="" id="preNcxBtn" />
+							
+							<input type="text" size="100" name="customBtn" id="customBtn" style="display:none;" />
+							
                             <p class="description">If you want to customize the look of the button using an image then enter the URL of the image.</p>
-
+							
                         </td>
 
                     </tr> 
@@ -659,7 +678,9 @@ function swpm_edit_nochex_buy_now_button_data() {
         update_post_meta($button_id, 'nochex_email', trim(sanitize_text_field($_REQUEST['nochex_email'])));
 
         update_post_meta($button_id, 'button_image_url', trim(sanitize_text_field($_REQUEST['button_image_url'])));
-
+		
+        update_post_meta($button_id, 'customBtn', trim(sanitize_text_field($_REQUEST['customBtn'])));
+ 
         echo '<div id="message" class="updated fade"><p>Payment button data successfully updated!</p></div>';
 
     }
