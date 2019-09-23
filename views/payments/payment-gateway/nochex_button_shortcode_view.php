@@ -1,7 +1,4 @@
 <?php
-
-
-
 /* * ************************************************
 
  * Nochex Buy Now button shortcode handler
@@ -101,8 +98,11 @@ if (SwpmMemberUtils::is_member_logged_in()) {
 
    $member_full_name = $member_first_name . ", " . $member_last_name;
    
-$all_level_ids = SwpmUtils::get_membership_level_row_by_id($membership_level_id);
-/**/
+$all_level_ids = SwpmUtils::get_membership_level_row_by_id($membership_level_id); 
+
+if ( is_numeric($all_level_ids->subscription_period)){
+$subscriptionPeriod = SwpmUtils::calculate_subscription_period_days($all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
+}else{
 list($y, $m, $d) = explode("-", $all_level_ids->subscription_period);
 /**/
 if(checkdate($m, $d, $y)){
@@ -116,6 +116,7 @@ $subscriptionPeriod = Get_Date_Difference($start_date, $end_date);
 
 $subscriptionPeriod = SwpmUtils::calculate_subscription_period_days($all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
 
+}
 }
 
 $subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
@@ -281,6 +282,7 @@ $aliasLevel = $all_level_ids->alias;
 
 }
 
+ 
  function Get_Date_Difference($start_date, $end_date)
     {
         $diff = abs(strtotime($end_date) - strtotime($start_date));
