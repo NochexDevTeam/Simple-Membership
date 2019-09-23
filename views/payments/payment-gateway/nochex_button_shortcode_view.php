@@ -111,7 +111,6 @@ $start_date = date("Y-m-d");
 $end_date = $all_level_ids->subscription_period;
 
 $subscriptionPeriod = Get_Date_Difference($start_date, $end_date);
-/*$subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);*/
 
 }else{
 
@@ -134,7 +133,6 @@ if($all_level_ids->subscription_duration_type == 1){
 }
 
 $xmlCollection = "<items><item><id></id><name>".$all_level_ids->alias."</name><description>Membership Duration: ".$all_level_ids->subscription_period." ".$subsPeriod.", Membership Expiration (if bought today): ".$subscriptionExpiryDate."</description><quantity>1</quantity><price>".$payment_amount."</price></item></items>";
-
 
 $member = SwpmMemberUtils::get_user_by_id($member_id);
 
@@ -163,28 +161,32 @@ if($member->account_state == "active"){
 }
 
 }
+$subStart = $member->subscription_starts;
+
 }else{
+ 
+	$subStart = "";
 	$permLevel = "";
 	$dispMsg = ""; 
 	$displayNoneForm = "style='display:block;'";
 	$showInfo = "none";
 }
 
-    /*$custom_field_value = apply_filters('swpm_custom_field_value_filter', $custom_field_value);*/
-	
+$aliasLevel = $all_level_ids->alias;
+
     $output = '<style>input + button, input + input[type="button"], input + input[type="submit"] { padding: 0px;background-color: #fff;}</style>';
     $output .= '<div class="swpm-button-wrapper swpm-pp-buy-now-wrapper" style="max-width:445px;">';	
     $output .= '<h3 style="color:#08c;"><b>'.$Title.'</b></h3>';	
     $output .= '<ul style="list-style:none">
 				<li><b>Amount</b>: &#163;'.$payment_amount.'</li>
-				<li><b>Membership</b>: '.$all_level_ids->alias.' </li> 
+				<li><b>Membership</b>: '.$aliasLevel.' </li> 
 				<li><b>Membership Expiration</b>: '.$subscriptionExpiryDate.'</li>
 				</ul>';	
 	$output .= '<div style="padding:10px; background:#fafafa;border:1px solid #eee;display:'.$showInfo.'">
 				<h3 style="color:#08c;"><b>'.$dispMsg.'</b>'.$renewMsg.'</h3>
 				<ul style="list-style:none">
 				<li>Membership Duration: '.$subDay.' Days</li>
-				<li>Your Membership started: '.$member->subscription_starts.'</li>
+				<li>Your Membership started: '.$subStart.'</li>
 				<li>Your Membership expires: '.$permLevel.'</li>
 				</ul>
 				</div>';
@@ -279,7 +281,6 @@ if($member->account_state == "active"){
 
 }
 
- 
  function Get_Date_Difference($start_date, $end_date)
     {
         $diff = abs(strtotime($end_date) - strtotime($start_date));
