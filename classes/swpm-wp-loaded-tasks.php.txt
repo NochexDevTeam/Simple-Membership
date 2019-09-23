@@ -1,4 +1,4 @@
-/* Around line 162 - before the stripe comment - add the following */
+/* Around line 47 / 48 */
 
 $swpm_process_nochex_buy_now = filter_input(INPUT_GET, 'swpm_process_nochex_buy_now');				
 
