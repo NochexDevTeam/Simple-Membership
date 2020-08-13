@@ -13,6 +13,11 @@ Visit our Knowledgebase for support: https://support.nochex.com/
 Changelog
 =====================
 
+= 1.3 =
+
+ * Bug fixes following recent releases of WordPress, and Simple Membership
+ * Changed name of one file
+
 = 1.2.2 =
 
 * Compatible with TLS 1.2 and uses Callback
