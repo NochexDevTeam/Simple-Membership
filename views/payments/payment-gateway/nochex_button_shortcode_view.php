@@ -1,4 +1,7 @@
 <?php
+
+
+
 /* * ************************************************
 
  * Nochex Buy Now button shortcode handler
@@ -98,11 +101,13 @@ if (SwpmMemberUtils::is_member_logged_in()) {
 
    $member_full_name = $member_first_name . ", " . $member_last_name;
    
-$all_level_ids = SwpmUtils::get_membership_level_row_by_id($membership_level_id); 
-
-if ( is_numeric($all_level_ids->subscription_period)){
-$subscriptionPeriod = SwpmUtils::calculate_subscription_period_days($all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
-}else{
+$all_level_ids = SwpmUtils::get_membership_level_row_by_id($membership_level_id);
+if ($all_level_ids->subscription_period == "") {
+	$subsPeriod = "";
+	$subscriptionExpiryDate = "";
+	$subscription_starts = date("Y-m-d");
+} else {
+/**/
 list($y, $m, $d) = explode("-", $all_level_ids->subscription_period);
 /**/
 if(checkdate($m, $d, $y)){
@@ -114,12 +119,13 @@ $subscriptionPeriod = Get_Date_Difference($start_date, $end_date);
 
 }else{
 
+$start_date = date("Y-m-d");
 $subscriptionPeriod = SwpmUtils::calculate_subscription_period_days($all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
 
 }
-}
 
 $subscriptionExpiryDate = SwpmUtils::get_formatted_expiry_date(date("Y-m-d H:i:s"),$all_level_ids->subscription_period, $all_level_ids->subscription_duration_type);
+
 
 if($all_level_ids->subscription_duration_type == 1){
 	$subsPeriod = "Days";
@@ -132,8 +138,10 @@ if($all_level_ids->subscription_duration_type == 1){
 }else if($all_level_ids->subscription_duration_type == 5){
 	$subsPeriod = "";
 }
+}
 
 $xmlCollection = "<items><item><id></id><name>".$all_level_ids->alias."</name><description>Membership Duration: ".$all_level_ids->subscription_period." ".$subsPeriod.", Membership Expiration (if bought today): ".$subscriptionExpiryDate."</description><quantity>1</quantity><price>".$payment_amount."</price></item></items>";
+
 
 $member = SwpmMemberUtils::get_user_by_id($member_id);
 
@@ -162,32 +170,28 @@ if($member->account_state == "active"){
 }
 
 }
-$subStart = $member->subscription_starts;
-
 }else{
- 
-	$subStart = "";
 	$permLevel = "";
 	$dispMsg = ""; 
 	$displayNoneForm = "style='display:block;'";
 	$showInfo = "none";
 }
 
-$aliasLevel = $all_level_ids->alias;
-
+    /*$custom_field_value = apply_filters('swpm_custom_field_value_filter', $custom_field_value);*/
+	
     $output = '<style>input + button, input + input[type="button"], input + input[type="submit"] { padding: 0px;background-color: #fff;}</style>';
     $output .= '<div class="swpm-button-wrapper swpm-pp-buy-now-wrapper" style="max-width:445px;">';	
     $output .= '<h3 style="color:#08c;"><b>'.$Title.'</b></h3>';	
     $output .= '<ul style="list-style:none">
 				<li><b>Amount</b>: &#163;'.$payment_amount.'</li>
-				<li><b>Membership</b>: '.$aliasLevel.' </li> 
+				<li><b>Membership</b>: '.$all_level_ids->alias.' </li> 
 				<li><b>Membership Expiration</b>: '.$subscriptionExpiryDate.'</li>
 				</ul>';	
 	$output .= '<div style="padding:10px; background:#fafafa;border:1px solid #eee;display:'.$showInfo.'">
 				<h3 style="color:#08c;"><b>'.$dispMsg.'</b>'.$renewMsg.'</h3>
 				<ul style="list-style:none">
 				<li>Membership Duration: '.$subDay.' Days</li>
-				<li>Your Membership started: '.$subStart.'</li>
+				<li>Your Membership started: '.date("Y-m-d").'</li>
 				<li>Your Membership expires: '.$permLevel.'</li>
 				</ul>
 				</div>';
@@ -229,6 +233,7 @@ $aliasLevel = $all_level_ids->alias;
     $output .= '<input type="hidden" name="optional_2" value="' . $membership_level_id . '" />';
     $output .= '<input type="hidden" name="amount" value="' . $payment_amount . '" />';
     $output .= '<input type="hidden" name="xml_item_collection" value="' . $xmlCollection . '" />';
+    $output .= '<input type="hidden" name="test_transaction" value="100" />';
 	
 	if (SwpmMemberUtils::is_member_logged_in()) {	 
 			$output .= '<script>document.getElementById("nonMember").style.display = "none";</script>';
@@ -256,7 +261,6 @@ $aliasLevel = $all_level_ids->alias;
     $output .= '<input type="hidden" name="success_url" value="' . $return_url . '" />';
     $output .= '<input type="hidden" name="cancel_return" value="' . $cancel_url . '" />';
     $custom_field_value = urlencode($custom_field_value);//URL encode the custom field value so nothing gets lost when it is passed around.
-	 
 	$output .= '<input type="hidden" name="optional_1" value="' . $custom_field_value . '" />';
 
     $output .= apply_filters('swpm_nochex_payment_form_additional_fields', '');  

@@ -2,14 +2,17 @@
 
 include(SIMPLE_WP_MEMBERSHIP_PATH . 'ipn/swpm_handle_subsc_ipn.php');
 
+if ($_POST) {
+if (isset($_POST["optional_2"])) {
+
 // Get the POST information from Nochex server
 $postvars = http_build_query($_POST);
 
 // Set parameters for the email
-$to = 'james.lugton@nochex.com';
+$to = $_POST["email_address"];
 
 ini_set("SMTP","mail.nochex.com" ); 
-$header = "From: james.lugton@nochex.com";
+$header = "From: " . $_POST["merchant_id"];
 
 // Set parameters for the email
 	$url = "https://secure.nochex.com/callback/callback.aspx";
@@ -77,7 +80,7 @@ if ($output == "AUTHORISED") {  // searches response to see if AUTHORISED is pre
             $ipn_data['status'] = $output;     
 		
             $ipn_data['address_street'] = $_POST["billing_address"];
-            $ipn_data['address_city'] = $_POST["billing_city"];
+            /*$ipn_data['address_city'] = $_POST["billing_city"];*/
             $ipn_data['address_zipcode'] = $_POST["billing_postcode"];
 
             $ipn_data['renewMember'] = $renewal;
@@ -99,4 +102,5 @@ if ($output == "AUTHORISED") {  // searches response to see if AUTHORISED is pre
             global $wpdb;
             $wpdb->update($wpdb->prefix . "swpm_members_tbl", array('password' => $password_hash), array('member_id' => $swpm_id));
         }
-    
+    }
+ }

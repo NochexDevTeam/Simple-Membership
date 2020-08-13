@@ -1,0 +1,8 @@
+/* Around line 48 - before '//Listen and handle PayPal IPN' - add the following */
+
+		$swpm_process_nochex_buy_now = filter_input(INPUT_GET, 'swpm_process_nochex_buy_now');				
+
+		if ($swpm_process_nochex_buy_now == 'n1') {
+			include(SIMPLE_WP_MEMBERSHIP_PATH . 'ipn/swpm-nochex-buy-now-ipn.php');
+			exit;
+		} 
