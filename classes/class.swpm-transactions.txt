@@ -1,11 +1,11 @@
 /* Around Line 21 - Replace the following line */
 
-	$txn_data['membership_level'] = $custom_var['subsc_ref'];
+	$txn_data['membership_level'] = isset ( $custom_var['subsc_ref'] ) ? $custom_var['subsc_ref'] : '';
 
 /* With the following */
 
 	if ($ipn_data['gateway'] == "nochex"){					
-			$txn_data['membership_level'] = $ipn_data['membership_level'];				
+		$txn_data['membership_level'] = $ipn_data['membership_level'];				
 	}else{						
-			$txn_data['membership_level'] = $custom_var['subsc_ref'];		
+		$txn_data['membership_level'] = isset ( $custom_var['subsc_ref'] ) ? $custom_var['subsc_ref'] : '';
 	}

@@ -13,6 +13,11 @@ Visit our Knowledgebase for support: https://support.nochex.com/
 Changelog
 =====================
 
+= 1.4 =
+
+ * Made changes to make smoother installation with recent release of Simple Memberships
+ * Added compatibilty with Sandbox Testing functionality
+
 = 1.3 =
 
  * Bug fixes following recent releases of WordPress, and Simple Membership

@@ -80,7 +80,7 @@ if ($output == "AUTHORISED") {  // searches response to see if AUTHORISED is pre
             $ipn_data['status'] = $output;     
 		
             $ipn_data['address_street'] = $_POST["billing_address"];
-            /*$ipn_data['address_city'] = $_POST["billing_city"];*/
+            $ipn_data['address_city'] = $_POST["billing_city"];
             $ipn_data['address_zipcode'] = $_POST["billing_postcode"];
 
             $ipn_data['renewMember'] = $renewal;

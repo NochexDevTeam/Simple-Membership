@@ -1,3 +1,3 @@
 /* Around line 4 - add the following line */
 
-include_once(SIMPLE_WP_MEMBERSHIP_PATH . 'views/payments/payment-gateway/admin_nochex_buy_now_button.php');
+require_once SIMPLE_WP_MEMBERSHIP_PATH . 'views/payments/payment-gateway/admin_nochex_buy_now_button.php';

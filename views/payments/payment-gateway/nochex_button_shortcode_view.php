@@ -140,8 +140,7 @@ if($all_level_ids->subscription_duration_type == 1){
 }
 }
 
-$xmlCollection = "<items><item><id></id><name>".$all_level_ids->alias."</name><description>Membership Duration: ".$all_level_ids->subscription_period." ".$subsPeriod.", Membership Expiration (if bought today): ".$subscriptionExpiryDate."</description><quantity>1</quantity><price>".$payment_amount."</price></item></items>";
-
+$xmlCollection = 'Name: ' . $all_level_ids->alias . '. Membership Duration: ' . $all_level_ids->subscription_period . ' ' . $subsPeriod . ', Membership Expiration (if bought today): ' . $subscriptionExpiryDate;
 
 $member = SwpmMemberUtils::get_user_by_id($member_id);
 
@@ -232,9 +231,11 @@ if($member->account_state == "active"){
     $output .= '<input type="hidden" name="merchant_id" value="' . $Nochex_email . '" />';	
     $output .= '<input type="hidden" name="optional_2" value="' . $membership_level_id . '" />';
     $output .= '<input type="hidden" name="amount" value="' . $payment_amount . '" />';
-    $output .= '<input type="hidden" name="xml_item_collection" value="' . $xmlCollection . '" />';
-    $output .= '<input type="hidden" name="test_transaction" value="100" />';
-	
+    $output .= '<input type="hidden" name="description" value="' . $xmlCollection . '" />';
+	if(!empty($sandbox_enabled)){
+		$output .= '<input type="hidden" name="test_transaction" value="100" />';
+		$output .= '<input type="hidden" name="test_success_url" value="' . $return_url . '" />';
+	}
 	if (SwpmMemberUtils::is_member_logged_in()) {	 
 			$output .= '<script>document.getElementById("nonMember").style.display = "none";</script>';
 		if($membership_type == 1){
@@ -279,6 +280,8 @@ if($member->account_state == "active"){
 
     $output .= '</form>'; //End .form
     $output .= '</div><br style="clear:both;" />'; //End .swpm_button_wrapper
+
+	//str_replace(['”'],['"'], $output);
 
     return $output;
 

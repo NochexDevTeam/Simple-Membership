@@ -1,4 +1,4 @@
-/* Around line 39 - add the following line */
+/* Around line 46 - add the following line */
 
 include_once(SIMPLE_WP_MEMBERSHIP_PATH . 'views/payments/payment-gateway/nochex_button_shortcode_view.php');
 
