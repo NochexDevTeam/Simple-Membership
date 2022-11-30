@@ -1,6 +1,8 @@
 Nochex Module for Simple Membership
 =====================
 
+Tested up to Simple Memberships version - 4.2.1
+
 Installation
 =====================
 To Install and Setup the Nochex module please follow our integration guide, which can be found <A href="https://support.nochex.com/kb/faq.php?id=215">here</a>
