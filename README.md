@@ -1,7 +1,7 @@
 Nochex Module for Simple Membership
 =====================
 
-Tested up to Simple Memberships version: 4.2.1
+Tested up to Simple Memberships version: 4.2.4
 
 Installation
 =====================
